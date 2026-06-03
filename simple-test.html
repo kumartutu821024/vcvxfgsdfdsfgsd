@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Batch Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .box { background: white; padding: 20px; border-radius: 5px; margin: 10px 0; }
+        h2 { color: #333; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        .output { background: #1e1e1e; color: #0f0; padding: 10px; border-radius: 3px; font-family: monospace; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .success { color: #4caf50; font-weight: bold; }
+        .error { color: #f44336; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Batch Loading Test</h1>
+
+    <div class="box">
+        <h2>Step 1: Test API</h2>
+        <button onclick="testAPI()">Test API Endpoint</button>
+        <div class="output" id="output1">Waiting...</div>
+    </div>
+
+    <div class="box">
+        <h2>Step 2: Display Batches (HTML)</h2>
+        <div id="batchGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 15px;"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('output1');
+            output.innerHTML = '<span class="success">Loading...</span>';
+
+            try {
+                const url = './api.php/batches';
+                console.log('🔗 Testing:', url);
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                output.innerHTML = `<span class="success">✅ SUCCESS (Status: ${response.status})</span>\n\n`;
+                output.innerHTML += `Batches Found: ${data.data.batches.length}\n`;
+                output.innerHTML += `Categories: ${data.data.categories.join(', ')}\n\n`;
+
+                output.innerHTML += `<span class="success">Full Response:</span>\n`;
+                output.innerHTML += JSON.stringify(data, null, 2);
+
+                // Display batches on page
+                displayBatches(data.data.batches);
+
+            } catch (e) {
+                output.innerHTML = `<span class="error">❌ ERROR: ${e.message}</span>`;
+                console.error(e);
+            }
+        }
+
+        function displayBatches(batches) {
+            const grid = document.getElementById('batchGrid');
+            grid.innerHTML = '';
+
+            batches.forEach(batch => {
+                const card = document.createElement('div');
+                card.style.cssText = 'border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: white;';
+                card.innerHTML = `
+                    <h3 style="margin: 0 0 10px 0;">${batch.name}</h3>
+                    <p style="margin: 5px 0;"><strong>Category:</strong> ${batch.category}</p>
+                    <p style="margin: 5px 0;"><strong>Subjects:</strong> ${batch.subjects_count}</p>
+                    ${batch.image ? `<img src="${batch.image}" style="max-width: 100%; height: 150px; object-fit: cover; border-radius: 3px; margin-top: 10px;" onerror="this.style.display='none'">` : ''}
+                `;
+                grid.appendChild(card);
+            });
+
+            console.log('✅ Displayed', batches.length, 'batches');
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('📄 Page loaded');
+            setTimeout(testAPI, 500);
+        });
+    </script>
+</body>
+</html>
+
