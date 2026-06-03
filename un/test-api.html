@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mission Topper - API Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .test-section h2 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-section h2::before {
+            content: '▶';
+            font-size: 12px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .output {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .endpoint-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .endpoint-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+            font-size: 12px;
+        }
+
+        .endpoint-item strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .endpoint-item code {
+            display: block;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 3px;
+            overflow-x: auto;
+            margin-top: 5px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .clear-btn {
+            background: #dc3545;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Mission Topper - API Test Suite</h1>
+
+        <div class="info-box">
+            <p><strong>ℹ️ How to use:</strong></p>
+            <p>1. Click each "Test" button to make API requests</p>
+            <p>2. View the JSON response in the output box below</p>
+            <p>3. Check console (F12) for detailed information</p>
+            <p>4. All requests are cached for 5 minutes</p>
+        </div>
+
+        <!-- Endpoint 1: Batches -->
+        <div class="test-section">
+            <h2>1. Load All Batches</h2>
+            <div class="endpoint-list">
+                <div class="endpoint-item">
+                    <strong>Method:</strong>
+                    <code>GET</code>
+                </div>
+                <div class="endpoint-item">
+                    <strong>Endpoint:</strong>
+                    <code>/api.php/batches</code>
+                </div>
+            </div>
+            <button onclick="testBatches()">🎓 Test Batches Endpoint</button>
+            <div class="output" id="output-batches"></div>
+        </div>
+
+        <!-- Endpoint 2: Subjects -->
+        <div class="test-section">
+            <h2>2. Load Subjects (for a Batch)</h2>
+            <div class="endpoint-list">
+                <div class="endpoint-item">
+                    <strong>Method:</strong>
+                    <code>GET</code>
+                </div>
+                <div class="endpoint-item">
+                    <strong>Endpoint:</strong>
+                    <code>/api.php/batches/{batch_id}</code>
+                </div>
+            </div>
+            <input type="text" id="batch-id" placeholder="Enter batch ID (or use default)" style="padding: 8px; border-radius: 4px; border: 1px solid #ddd; width: 100%; margin-bottom: 10px;" value="kota_neet_ug_2026_master_pro_1" />
+            <button onclick="testSubjects()">📚 Test Subjects Endpoint</button>
+            <div class="output" id="output-subjects"></div>
+        </div>
+
+        <!-- Endpoint 3: Lectures -->
+        <div class="test-section">
+            <h2>3. Load Lectures (for a Subject)</h2>
+            <div class="endpoint-list">
+                <div class="endpoint-item">
+                    <strong>Method:</strong>
+                    <code>GET</code>
+                </div>
+                <div class="endpoint-item">
+                    <strong>Endpoint:</strong>
+                    <code>/api.php/subjects/{subject_uid}</code>
+                </div>
+            </div>
+            <input type="text" id="subject-id" placeholder="Enter subject UID (or use default)" style="padding: 8px; border-radius: 4px; border: 1px solid #ddd; width: 100%; margin-bottom: 10px;" value="W79Z40CU" />
+            <button onclick="testLectures()">🎬 Test Lectures Endpoint</button>
+            <div class="output" id="output-lectures"></div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="stat-requests">0</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="stat-cached">0</div>
+                <div class="stat-label">Cached Responses</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="stat-errors">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+        </div>
+
+        <button class="clear-btn" onclick="clearAllOutputs()">🗑️ Clear All Output</button>
+    </div>
+
+    <script>
+        let stats = {
+            requests: 0,
+            cached: 0,
+            errors: 0
+        };
+
+        function updateStats() {
+            document.getElementById('stat-requests').textContent = stats.requests;
+            document.getElementById('stat-cached').textContent = stats.cached;
+            document.getElementById('stat-errors').textContent = stats.errors;
+        }
+
+        function formatJSON(obj, indent = 2) {
+            return JSON.stringify(obj, null, indent);
+        }
+
+        async function makeRequest(url, outputId) {
+            const output = document.getElementById(outputId);
+            output.innerHTML = '<span class="loading">⏳ Loading...</span>';
+
+            try {
+                stats.requests++;
+
+                // Check cache
+                const cached = sessionStorage.getItem(url);
+                if (cached) {
+                    stats.cached++;
+                    output.innerHTML = '<span class="success">✅ Served from Cache</span>\n\n' +
+                        '<pre>' + formatJSON(JSON.parse(cached)) + '</pre>';
+                    console.log(`✅ Cache hit: ${url}`);
+                    updateStats();
+                    return;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    output.innerHTML = '<span class="success">✅ Success</span>\n\n' +
+                        '<pre>' + formatJSON(data) + '</pre>';
+                    console.log(`✅ Success: ${url}`, data);
+                } else {
+                    stats.errors++;
+                    output.innerHTML = '<span class="error">❌ Error</span>\n\n' +
+                        '<pre>' + formatJSON({
+                            status: response.status,
+                            statusText: response.statusText,
+                            data: data
+                        }) + '</pre>';
+                    console.error(`❌ Error: ${url}`, data);
+                }
+            } catch (error) {
+                stats.errors++;
+                output.innerHTML = '<span class="error">❌ Request Failed</span>\n\n' +
+                    '<pre>' + error.message + '</pre>';
+                console.error('Request error:', error);
+            }
+
+            updateStats();
+        }
+
+        function testBatches() {
+            makeRequest('api.php/batches', 'output-batches');
+        }
+
+        function testSubjects() {
+            const batchId = document.getElementById('batch-id').value || 'kota_neet_ug_2026_master_pro_1';
+            makeRequest(`api.php/batches/${encodeURIComponent(batchId)}`, 'output-subjects');
+        }
+
+        function testLectures() {
+            const subjectId = document.getElementById('subject-id').value || 'W79Z40CU';
+            makeRequest(`api.php/subjects/${encodeURIComponent(subjectId)}`, 'output-lectures');
+        }
+
+        function clearAllOutputs() {
+            document.getElementById('output-batches').innerHTML = '';
+            document.getElementById('output-subjects').innerHTML = '';
+            document.getElementById('output-lectures').innerHTML = '';
+            stats = { requests: 0, cached: 0, errors: 0 };
+            updateStats();
+            console.log('All outputs cleared');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === '1') testBatches();
+            if (e.ctrlKey && e.key === '2') testSubjects();
+            if (e.ctrlKey && e.key === '3') testLectures();
+            if (e.ctrlKey && e.key === '0') clearAllOutputs();
+        });
+
+        console.log('%c🧪 Mission Topper API Test Suite', 'font-size: 20px; color: #667eea; font-weight: bold;');
+        console.log('Keyboard shortcuts:\n• Ctrl+1: Test Batches\n• Ctrl+2: Test Subjects\n• Ctrl+3: Test Lectures\n• Ctrl+0: Clear All');
+    </script>
+</body>
+</html>
+

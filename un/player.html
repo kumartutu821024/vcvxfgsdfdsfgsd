@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Player</title>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background:#0f1724; color:#e6eef8; margin:0; }
+    .container{max-width:1100px;margin:24px auto;padding:20px}
+    .meta{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    h1{font-size:20px;margin:0 0 6px}
+    .sub{color:#9fb0d6;font-size:14px}
+    .player-wrap{background:#071025;padding:14px;border-radius:12px}
+    video{width:100%;height:auto;border-radius:8px;background:black}
+    .actions{display:flex;gap:10px;margin-top:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+    .btn-primary{background:#6c47ff;color:white}
+    .btn-ghost{background:rgba(255,255,255,0.06);color:#cfe3ff}
+    a.btn{text-decoration:none}
+    .note{margin-top:12px;color:#9fb0d6;font-size:13px}
+    .error{color:#ffb4b4}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="meta">
+      <h1 id="title">Loading…</h1>
+      <div class="sub" id="meta">&nbsp;</div>
+    </div>
+
+    <div class="player-wrap">
+      <video id="player" controls preload="metadata">
+        Your browser does not support HTML5 video.
+      </video>
+
+      <div class="actions">
+        <a id="downloadBtn" class="btn btn-primary" href="#" download target="_blank">⬇️ Download</a>
+        <a id="openBtn" class="btn btn-ghost" href="#" target="_blank">🔗 Open in new tab</a>
+        <a id="pdfBtn" class="btn btn-ghost" href="#" target="_blank" style="display:none">📄 View PDF</a>
+      </div>
+
+      <div class="note" id="note">Video source: <span id="sourceText">—</span></div>
+      <div class="note error" id="error" style="display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    function q(name){ return decodeURIComponent(new URLSearchParams(location.search).get(name) || ''); }
+    const title = q('title') || 'Untitled';
+    const teacher = q('teacher') || '';
+    const date = q('date') || '';
+    const subject = q('subject') || '';
+    const batch = q('batch') || '';
+    const dl_url = q('dl_url') || q('video_url') || '';
+    const pdf_url = q('pdf_url') || '';
+
+    document.getElementById('title').textContent = title;
+    const meta = [];
+    if (teacher) meta.push(teacher);
+    if (subject) meta.push(subject);
+    if (batch) meta.push(batch);
+    if (date) meta.push(new Date(date).toLocaleString());
+    document.getElementById('meta').textContent = meta.join(' • ');
+
+    const player = document.getElementById('player');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const openBtn = document.getElementById('openBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const sourceText = document.getElementById('sourceText');
+    const errorEl = document.getElementById('error');
+
+    if (!dl_url) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'No video URL provided.';
+      downloadBtn.style.display = 'none';
+      openBtn.style.display = 'none';
+      sourceText.textContent = '—';
+    } else {
+      sourceText.textContent = dl_url;
+      // set source
+      const src = document.createElement('source');
+      src.src = dl_url;
+      // try to guess type
+      if (dl_url.match(/\.mp4($|\?)/i)) src.type = 'video/mp4';
+      else if (dl_url.match(/\.webm($|\?)/i)) src.type = 'video/webm';
+      player.innerHTML = '';
+      player.appendChild(src);
+      // load and play
+      player.load();
+
+      // set download and open links
+      downloadBtn.href = dl_url;
+      openBtn.href = dl_url;
+      // ensure download attribute exists
+      downloadBtn.setAttribute('download', '');
+    }
+
+    if (pdf_url) {
+      pdfBtn.style.display = 'inline-flex';
+      pdfBtn.href = pdf_url;
+      pdfBtn.target = '_blank';
+    }
+
+    // keyboard shortcuts: space toggle play/pause
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (player.paused) player.play(); else player.pause();
+      }
+    });
+  </script>
+</body>
+</html>
